@@ -8,8 +8,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
+                 cache.addAll(urlsToCache);
             })
     )
 });
@@ -17,12 +16,15 @@ self.addEventListener('install', (event) => {
 // Listen for requests
 self.addEventListener('fetch', (event) => {
     event.respondWith(
-        caches.match(event.request)
-            .then(() => {
-                return fetch(event.request) 
-                    .catch(() => caches.match('offline.html'))
-            })
-    )
+         caches.match(event.request).then((resp) => {
+          if (resp) {
+               return resp
+          }
+           let requestUrl = event.request.clone();
+          fetch(requestUrl)
+          .catch(() => caches.match('offline.html'))
+        })
+                )
 });
 
 // Activate the SW
@@ -41,3 +43,4 @@ self.addEventListener('activate', (event) => {
             
     )
 });
+  
